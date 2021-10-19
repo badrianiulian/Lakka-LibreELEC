@@ -19,40 +19,54 @@
 ################################################################################
 
 PKG_NAME="openlara"
-PKG_VERSION="f1891b1"
+PKG_VERSION="0b887fd"
 PKG_REV="1"
-PKG_ARCH="i386 x86_64"
+PKG_ARCH="any"
 PKG_LICENSE="BSD"
 PKG_SITE="https://github.com/libretro/openlara"
-PKG_URL="https://github.com/libretro/openlara/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Classic Tomb Raider open-source engine"
 PKG_LONGDESC="Classic Tomb Raider open-source engine"
+PKG_TOOLCHAIN="make"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
+
+if [ "$OPENGLES_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGLES"
+fi
+
 make_target() {
-  case $PROJECT in
+  LARA_GLES=""
+  if [ "$OPENGLES_SUPPORT" = yes ]; then
+    LARA_GLES="GLES=1"
+  fi
+
+  case ${DEVICE:-$PROJECT} in
     RPi|RPi2|Gamegirl)
-      CFLAGS="$CFLAGS -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
-                      -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
-      make -C src/platform/libretro GLES=1
+      CFLAGS+=" -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
+                -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
+      CXXFLAGS+=" -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
+                -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
       ;;
     imx6)
-      CFLAGS="$CFLAGS -DLINUX -DEGL_API_FB"
-      CPPFLAGS="$CPPFLAGS -DLINUX -DEGL_API_FB"
-      make -C src/platform/libretro
-      ;;
-    *)
-      make -C src/platform/libretro
+      CFLAGS+=" -DLINUX -DEGL_API_FB"
+      CXXFLAGS+=" -DLINUX -DEGL_API_FB"
       ;;
   esac
+
+  make -C src/platform/libretro $LARA_GLES
 }
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
   cp src/platform/libretro/*_libretro.so $INSTALL/usr/lib/libretro/
 }
+

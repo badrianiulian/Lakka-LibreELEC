@@ -19,28 +19,37 @@
 ################################################################################
 
 PKG_NAME="dolphin"
-PKG_VERSION="e6b9d78"
+PKG_VERSION="f4f4947"
 PKG_REV="1"
-PKG_ARCH="x86_64"
+PKG_ARCH="x86_64 aarch64"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/dolphin"
-PKG_URL="https://github.com/libretro/dolphin/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Dolphin is a GameCube / Wii emulator, allowing you to play games for these two platforms on PC with improvements."
 PKG_LONGDESC="Dolphin is a GameCube / Wii emulator, allowing you to play games for these two platforms on PC with improvements."
+PKG_TOOLCHAIN="cmake"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
-PKG_USE_CMAKE="no"
 
-make_target() {
-  cd $PKG_BUILD
-  make -C Source/Core/DolphinLibretro
-}
+if [ "$BLUETOOTH_SUPPORT" = "yes" ]; then
+  PKG_DEPENDS_TARGET+=" bluez"
+fi
+
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
+
+if [ "$OPENGLES_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGLES"
+fi
+
+PKG_CMAKE_OPTS_TARGET="-DENABLE_X11=OFF -DLIBRETRO=ON -DENABLE_NOGUI=OFF -DENABLE_QT=OFF -DENABLE_TESTS=OFF -DUSE_DISCORD_PRESENCE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release"
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
-  cp Source/Core/DolphinLibretro/dolphin_libretro.so $INSTALL/usr/lib/libretro/
+  cp $PKG_BUILD/.$TARGET_NAME/dolphin_libretro.so $INSTALL/usr/lib/libretro/
 }

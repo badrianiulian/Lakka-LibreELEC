@@ -19,57 +19,72 @@
 ################################################################################
 
 PKG_NAME="mupen64plus"
-PKG_VERSION="d1451bb"
+PKG_VERSION="ab8134a"
 PKG_REV="1"
-PKG_ARCH="any"
+PKG_ARCH="arm i386 x86_64"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/mupen64plus-libretro"
-PKG_URL="https://github.com/libretro/mupen64plus-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain nasm:host"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="mupen64plus + RSP-HLE + GLideN64 + libretro"
 PKG_LONGDESC="mupen64plus + RSP-HLE + GLideN64 + libretro"
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/mupen64plus-libretro-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
+
+if [ "$OPENGLES_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGLES"
+fi
 
 pre_configure_target() {
   strip_lto
 }
 
 make_target() {
-  case $PROJECT in
+  case ${DEVICE:-$PROJECT} in
     RPi|Gamegirl)
       CFLAGS="$CFLAGS -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
 	              -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
-      make platform=rpi
+      make platform=rpi GLES=1 FORCE_GLES=1 WITH_DYNAREC=arm
       ;;
     RPi2)
       CFLAGS="$CFLAGS -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
                       -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
-      make platform=rpi2
+      make platform=rpi2 GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
+      ;;
+    RPi4)
+      make platform=unix GLES3=1 FORCE_GLES3=1 HAVE_NEON=1 WITH_DYNAREC=arm
       ;;
     imx6)
       CFLAGS="$CFLAGS -DLINUX -DEGL_API_FB"
       CPPFLAGS="$CPPFLAGS -DLINUX -DEGL_API_FB"
-      make platform=linux FORCE_GLES=1 GLES=1 GLSL_OPT=1 WITH_DYNAREC=arm HAVE_NEON=1
+      make platform=unix GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
       ;;
-    Generic)
-      make
+    Generic*)
+      case $ARCH in
+        x86_64)
+          make WITH_DYNAREC=x86_64
+          ;;
+        i386)
+          make WITH_DYNAREC=x86
+          ;;
+      esac
       ;;
     OdroidC1)
-      make platform=odroid BOARD=ODROID-C1
+      make platform=odroid BOARD=ODROIDC1 GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
       ;;
     OdroidXU3)
-      make platform=odroid BOARD=ODROID-XU3
+      make platform=odroid BOARD=ODROID-XU3 GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
       ;;
     *)
-      make platform=linux-gles GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
+      make platform=unix-gles GLES=1 FORCE_GLES=1 HAVE_NEON=1 WITH_DYNAREC=arm
       ;;
   esac
 }
@@ -77,4 +92,7 @@ make_target() {
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
   cp mupen64plus_libretro.so $INSTALL/usr/lib/libretro/
+
+  # fix missing core info
+  wget -P $INSTALL/usr/lib/libretro https://raw.githubusercontent.com/libretro/libretro-core-info/v1.7.5/mupen64plus_libretro.info
 }

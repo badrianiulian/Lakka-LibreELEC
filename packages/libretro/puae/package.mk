@@ -19,27 +19,23 @@
 ################################################################################
 
 PKG_NAME="puae"
-PKG_VERSION="9dce8a6"
+PKG_VERSION="6bcad0b"
 PKG_REV="1"
-PKG_ARCH="any"
+PKG_ARCH="arm i386 x86_64"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/libretro-uae"
-PKG_URL="https://github.com/libretro/libretro-uae/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="WIP libretro port of UAE (P-UAE and libco) Expect bugs"
 PKG_LONGDESC="WIP libretro port of UAE (P-UAE and libco) Expect bugs"
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() { 
-  mv $BUILD/libretro-uae-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION 
-}
-
 pre_configure_target() {
-  strip_lto
   if [ "$ARCH" == "arm" ]; then
     CFLAGS="$CFLAGS -DARM -marm"
   fi

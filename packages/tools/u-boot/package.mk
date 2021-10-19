@@ -42,9 +42,13 @@ elif [ "$UBOOT_VERSION" = "odroidc" ]; then
   PKG_URL="$LAKKA_MIRROR/u-boot-$PKG_VERSION.tar.xz"
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET gcc-linaro-arm-eabi:host"
 elif [ "$UBOOT_VERSION" = "sunxi" ]; then
-  PKG_VERSION="af9f405"
-  PKG_SITE="https://github.com/linux-sunxi/u-boot-sunxi"
-  PKG_URL="$LAKKA_MIRROR/u-boot-$PKG_VERSION.tar.xz"
+PKG_COMMIT="af9f405"
+PKG_VERSION="sunxi-$PKG_COMMIT"
+#  PKG_SITE="https://github.com/linux-sunxi/u-boot-sunxi"
+#  PKG_URL="$LAKKA_MIRROR/u-boot-$PKG_VERSION.tar.xz"
+PKG_URL="https://github.com/linux-sunxi/u-boot-sunxi/archive/$PKG_COMMIT.tar.gz"
+PKG_SOURCE_NAME="$PKG_NAME-$PKG_VERSION.tar.gz"
+PKG_SOURCE_DIR="$PKG_NAME-sunxi-${PKG_COMMIT}*"
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET sunxi-tools:host gcc-linaro-arm-eabi:host"
 else
   exit 0
@@ -90,7 +94,7 @@ make_target() {
       CROSS_COMPILE=aarch64-elf- ARCH=arm CFLAGS="" LDFLAGS="" make mrproper
       CROSS_COMPILE=aarch64-elf- ARCH=arm CFLAGS="" LDFLAGS="" make $UBOOT_TARGET
       CROSS_COMPILE=aarch64-elf- ARCH=arm CFLAGS="" LDFLAGS="" make HOSTCC="$HOST_CC" HOSTSTRIP="true"
-    elif [ "$PROJECT" = "OdroidC1" -o "$PROJECT" = "a20" -o "$PROJECT" = "a10" -o "$PROJECT" = "Bananapi" ]; then
+    elif [ "$PROJECT" = "OdroidC1" -o "$PROJECT" = "a20" -o "$PROJECT" = "a10" -o "$PROJECT" = "Bananapi" -o "$PROJECT" = "Bananapro" ]; then
       export PATH=$TOOLCHAIN/lib/gcc-linaro-arm-eabi/bin/:$PATH
       make CROSS_COMPILE="arm-eabi-" ARCH=arm mrproper
       make CROSS_COMPILE="arm-eabi-" ARCH=arm $UBOOT_TARGET

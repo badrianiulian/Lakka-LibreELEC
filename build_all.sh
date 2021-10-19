@@ -16,6 +16,8 @@ DISTRO=Lakka PROJECT=a20 ARCH=arm make image -j8
 DISTRO=Lakka PROJECT=a10 ARCH=arm make image -j8
 >&2 echo "Bananapi.arm"
 DISTRO=Lakka PROJECT=Bananapi ARCH=arm make image -j8
+>&2 echo "Bananapro.arm"
+DISTRO=Lakka PROJECT=Bananapro ARCH=arm make image -j8
 >&2 echo "imx6.cuboxi.arm"
 DISTRO=Lakka PROJECT=imx6 SYSTEM=cuboxi ARCH=arm make image -j8
 >&2 echo "imx6.udoo.arm"

@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="snes9x2010"
-PKG_VERSION="41d8669"
+PKG_VERSION="187e2b5"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Non-commercial"
-PKG_SITE="https://github.com/libretro/snes9x2010.git"
-PKG_URL="https://github.com/libretro/snes9x2010/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/libretro/snes9x2010"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -35,7 +35,11 @@ PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
 make_target() {
-  make -f Makefile.libretro
+  if [ "$DEVICE" == "OdroidGoAdvance" ];then 
+	make -f Makefile.libretro platform=goa_armv8_a35
+  else
+	make -f Makefile.libretro
+  fi
 }
 
 makeinstall_target() {

@@ -38,7 +38,9 @@ case "$LINUX" in
     ;;
   linux-sun7i)
     PKG_VERSION="d47d367"
-    PKG_URL="$LAKKA_MIRROR/$PKG_NAME-$PKG_VERSION.tar.xz"
+    #PKG_URL="$LAKKA_MIRROR/$PKG_NAME-$PKG_VERSION.tar.xz"
+	PKG_URL="https://github.com/linux-sunxi/linux-sunxi/archive/$PKG_VERSION.tar.gz"
+	PKG_SOURCE_DIR="linux-sunxi-$PKG_VERSION*"
     ;;
   linux-sun8i)
     PKG_VERSION="f143b8a"

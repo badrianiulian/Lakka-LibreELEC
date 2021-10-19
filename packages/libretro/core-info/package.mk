@@ -19,12 +19,11 @@
 ################################################################################
 
 PKG_NAME="core-info"
-PKG_VERSION="e6ac0b7"
-PKG_REV="1"
+PKG_VERSION="f8c1149"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
-PKG_SITE="https://github.com/libretro/libretro-super"
-PKG_URL="https://github.com/libretro/libretro-super/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/libretro/libretro-core-info"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -34,16 +33,12 @@ PKG_LONGDESC="Super repo for other libretro projects. Fetches, builds and instal
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/libretro-super-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
-
 make_target() {
   :
 }
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
-  cp dist/info/*.info $INSTALL/usr/lib/libretro/
+  cp $PKG_BUILD/*.info $INSTALL/usr/lib/libretro/
 }
 

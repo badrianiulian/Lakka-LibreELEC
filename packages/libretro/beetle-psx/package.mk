@@ -19,32 +19,39 @@
 ################################################################################
 
 PKG_NAME="beetle-psx"
-PKG_VERSION="e84285d"
+PKG_VERSION="4e18858"
 PKG_REV="1"
-PKG_ARCH="any"
+PKG_ARCH="x86_64 i386 aarch64"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/beetle-psx-libretro"
-PKG_URL="https://github.com/libretro/beetle-psx-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Standalone port of Mednafen PSX to libretro."
 PKG_LONGDESC="Standalone port of Mednafen PSX to libretro."
+PKG_TOOLCHAIN="make"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/beetle-psx-libretro-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
 
-make_target() {
-  if [ "$OPENGLES" == "mali-rockchip" -o "$DEVICE" == "TinkerBoard" ]; then
-  make HAVE_VULKAN=1
-  else
-  make HAVE_OPENGL=1
- fi
-}
+if [ "$VULKAN_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $VULKAN vulkan-loader"
+fi
+
+PKG_MAKE_OPTS_TARGET="HAVE_CDROM=1"
+
+if [ "$OPENGL_SUPPORT" = yes -a "$VULKAN_SUPPORT" = yes ]; then
+  PKG_MAKE_OPTS_TARGET+=" HAVE_HW=1"
+elif [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_MAKE_OPTS_TARGET+=" HAVE_OPENGL=1"
+elif [ "$VULKAN_SUPPORT" = yes ]; then
+  PKG_MAKE_OPTS_TARGET+=" HAVE_VULKAN=1"
+fi
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro

@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="fuse-libretro"
-PKG_VERSION="f4572b9"
+PKG_VERSION="c2f03e6"
 PKG_REV="1"
-PKG_ARCH="any"
+PKG_ARCH="i386 x86_64 arm"
 PKG_LICENSE="GPLv3"
 PKG_SITE="https://github.com/libretro/fuse-libretro"
-PKG_URL="https://github.com/libretro/fuse-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"

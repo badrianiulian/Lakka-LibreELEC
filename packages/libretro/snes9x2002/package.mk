@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="snes9x2002"
-PKG_VERSION="fe24f89"
+PKG_VERSION="a869da7"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Non-commercial"
 PKG_SITE="https://github.com/libretro/snes9x2002"
-PKG_URL="https://github.com/libretro/snes9x2002/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -33,6 +33,14 @@ PKG_LONGDESC="Snes9x 2002. Port of SNES9x 1.39 for libretro (was previously call
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
+
+make_target() {
+  if [ "$DEVICE" = "RPi" -o "$DEVICE" = "Gamegirl" -o "$DEVICE" = "GPICase" ]; then
+    make ARM_ASM=1 platform=unix
+  else
+    make platform=unix
+  fi
+}
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro

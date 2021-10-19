@@ -19,31 +19,31 @@
 ################################################################################
 
 PKG_NAME="genesis-plus-gx"
-PKG_VERSION="da0ee59"
+PKG_VERSION="f8a8046"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="Non-commercial"
-PKG_SITE="https://github.com/libretro/Genesis-Plus-GX"
-PKG_URL="https://github.com/libretro/Genesis-Plus-GX/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/ekeeke/Genesis-Plus-GX"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="An enhanced port of Genesis Plus for Gamecube/Wii"
 PKG_LONGDESC="Genesis Plus GX is an open-source & portable Sega Mega Drive / Genesis emulator, now also emulating SG-1000, Master System, Game Gear and Sega/Mega CD hardware."
+PKG_TOOLCHAIN="make"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/Genesis-Plus-GX-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
+PKG_MAKE_OPTS_TARGET="-f Makefile.libretro HAVE_CDROM=1"
 
-make_target() {
-  if [ "$ARCH" == "arm" ]; then
-    CFLAGS="$CFLAGS -DALIGN_LONG"
-  fi
-  make -f Makefile.libretro
-}
+if [ "$ARCH" = "aarch64" ]; then
+  PKG_MAKE_OPTS_TARGET+=" NO_OPTIMIZE=1"
+fi
+
+if [ "$ARCH" = "arm" ]; then
+  PKG_EXTRA_CFLAGS="-DALIGN_LONG"
+fi
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro

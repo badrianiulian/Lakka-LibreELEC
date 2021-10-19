@@ -19,20 +19,30 @@
 ################################################################################
 
 PKG_NAME="pcsx_rearmed"
-PKG_VERSION="c7dde5e"
+PKG_VERSION="d56340b"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/pcsx_rearmed"
-PKG_URL="https://github.com/libretro/pcsx_rearmed/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="ARM optimized PCSX fork"
 PKG_LONGDESC="PCSX ReARMed is yet another PCSX fork based on the PCSX-Reloaded project, which itself contains code from PCSX, PCSX-df and PCSX-Revolution."
+PKG_BUILD_FLAGS="-gold"
+PKG_TOOLCHAIN="make"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
+
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
+
+if [ "$OPENGLES_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGLES"
+fi
 
 configure_target() {
   strip_gold
@@ -41,9 +51,14 @@ configure_target() {
 make_target() {
   cd $PKG_BUILD
   if [[ "$TARGET_FPU" =~ "neon" ]]; then
-    make -f Makefile.libretro HAVE_NEON=1 USE_DYNAREC=1 BUILTIN_GPU=neon
+  if [ "$DEVICE" == "OdroidGoAdvance" ]; then
+		sed -i "s|armv8-a|armv8-a+crc|" Makefile.libretro
+		make -f Makefile.libretro HAVE_NEON=1 USE_DYNAREC=1 DYNAREC=ari64 ARCH=arm BUILTIN_GPU=neon platform=classic_armv8_a35
+    else
+		make -f Makefile.libretro HAVE_NEON=1 USE_DYNAREC=1 DYNAREC=ari64 ARCH=arm BUILTIN_GPU=neon
+    fi
   elif [ "$ARCH" == "arm" ]; then
-    make -f Makefile.libretro HAVE_NEON=0 USE_DYNAREC=1
+    make -f Makefile.libretro HAVE_NEON=0 USE_DYNAREC=1 DYNAREC=ari64 ARCH=arm BUILTIN_GPU=unai
   else
     make -f Makefile.libretro
   fi
@@ -53,3 +68,4 @@ makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
   cp pcsx_rearmed_libretro.so $INSTALL/usr/lib/libretro/
 }
+

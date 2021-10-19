@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="gpsp"
-PKG_VERSION="5d1ae42"
+PKG_VERSION="856af16"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/gpsp"
-PKG_URL="https://github.com/libretro/gpsp/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -35,11 +35,7 @@ PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
 make_target() {
-  if [ "$ARCH" == "arm" ]; then
-    make CC=$CC platform=armv
-  else
-    make CC=$CC
-  fi  
+    make CC=$CC platform=unix
 }
 
 makeinstall_target() {

@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="retroarch-joypad-autoconfig"
-PKG_VERSION="06c23c4"
+PKG_VERSION="c13eb46"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
-PKG_SITE="https://github.com/lakkatv/retroarch-joypad-autoconfig"
-PKG_URL="https://github.com/libretro/retroarch-joypad-autoconfig/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/libretro/retroarch-joypad-autoconfig"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -39,5 +39,5 @@ configure_target() {
 }
 
 makeinstall_target() {
- make install INSTALLDIR="$INSTALL/etc/retroarch-joypad-autoconfig"
+  make install INSTALLDIR="$INSTALL/etc/retroarch-joypad-autoconfig" DOC_DIR="$INSTALL/etc/doc/."
 }

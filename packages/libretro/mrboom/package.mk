@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="mrboom"
-PKG_VERSION="755e724"
+PKG_VERSION="1bd7a1a"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv3"
 PKG_SITE="https://github.com/libretro/mrboom-libretro"
-PKG_URL="https://github.com/libretro/mrboom-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -34,8 +34,12 @@ PKG_LONGDESC="Mr.Boom is a 8 players Bomberman clone for RetroArch/Libretro"
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/mrboom-libretro-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
+make_target() {
+  if [[ "$TARGET_FPU" =~ "neon" ]]; then
+    make HAVE_NEON=1
+  else
+    make
+  fi
 }
 
 makeinstall_target() {

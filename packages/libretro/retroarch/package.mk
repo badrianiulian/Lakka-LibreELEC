@@ -19,7 +19,7 @@
 ################################################################################
 
 PKG_NAME="retroarch"
-PKG_VERSION="28397b3"
+PKG_VERSION="5e551dd"
 PKG_REV="5"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv3"
@@ -39,7 +39,7 @@ post_unpack() {
 }
 
 if [ "$OPENGLES_SUPPORT" = yes ]; then
-  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET $OPENGLES"
+  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET $OPENGLES libdrm"
 else
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET $OPENGL"
 fi
@@ -59,11 +59,11 @@ elif [ "$OPENGLES" == "bcm2835-driver" ]; then
   CFLAGS="$CFLAGS -I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads \
                   -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux"
 elif [ "$OPENGLES" == "sunxi-mali" ] || [ "$OPENGLES" == "odroidc1-mali" ] || [ "$OPENGLES" == "odroidxu3-mali" ] || [ "$OPENGLES" == "opengl-meson" ] || [ "$OPENGLES" == "opengl-meson8" ]; then
-  RETROARCH_GL="--enable-opengles --disable-kms --disable-x11 --enable-mali_fbdev"
+  RETROARCH_GL="--enable-opengles --disable-kms --disable-x11 --enable-mali_fbdev --disable-wayland"
 elif [ "$OPENGLES" == "gpu-viv-bin-mx6q" ] || [ "$OPENGLES" == "imx-gpu-viv" ]; then
   RETROARCH_GL="--enable-opengles --disable-kms --disable-x11 --enable-vivante_fbdev"
   CFLAGS="$CFLAGS -DLINUX -DEGL_API_FB"
-elif [ "$OPENGLES" == "mali-rockchip" ]; then
+elif [ "$OPENGLES" == "mali-rockchip" ] || [ "$OPENGLES" == "libmali" ]; then
   RETROARCH_GL="--enable-opengles --enable-kms --disable-x11 --disable-wayland"
 fi
 
@@ -71,22 +71,25 @@ if [[ "$TARGET_FPU" =~ "neon" ]]; then
   RETROARCH_NEON="--enable-neon"
 fi
 
-TARGET_CONFIGURE_OPTS=""
 PKG_CONFIGURE_OPTS_TARGET="--disable-vg \
                            --disable-sdl \
+                           --disable-sdl2 \
+                           --disable-ssl \
                            $RETROARCH_GL \
                            $RETROARCH_NEON \
-                           --enable-fbo \
                            --enable-zlib \
-                           --enable-freetype"
+                           --enable-freetype \
+                           --enable-translate \
+                           --enable-cdrom \
+                           --datarootdir=$SYSROOT_PREFIX/usr/share" # don't use host /usr/share!
 
 pre_configure_target() {
-  strip_lto # workaround for https://github.com/libretro/RetroArch/issues/1078
+  TARGET_CONFIGURE_OPTS=""
   cd $PKG_BUILD
 }
 
 make_target() {
-  make V=1 HAVE_LAKKA=1 HAVE_ZARCH=0
+  make V=1 HAVE_LAKKA=1 HAVE_ZARCH=0 HAVE_BLUETOOTH=1
   make -C gfx/video_filters compiler=$CC extra_flags="$CFLAGS"
   make -C libretro-common/audio/dsp_filters compiler=$CC extra_flags="$CFLAGS"
 }
@@ -116,11 +119,20 @@ makeinstall_target() {
   sed -i -e "s/# video_shader_dir =/video_shader_dir =\/tmp\/shaders/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# rgui_show_start_screen = true/rgui_show_start_screen = false/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# assets_directory =/assets_directory =\/tmp\/assets/" $INSTALL/etc/retroarch.cfg
-  sed -i -e "s/# overlays_directory =/overlays_directory =\/usr\/share\/retroarch-overlays/" $INSTALL/etc/retroarch.cfg
+  sed -i -e "s/# overlay_directory =/overlay_directory =\/usr\/share\/retroarch-overlays/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# cheat_database_path =/cheat_database_path =\/tmp\/database\/cht/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# menu_driver = \"rgui\"/menu_driver = \"xmb\"/" $INSTALL/etc/retroarch.cfg
+ 
+  # Quick menu
   echo "core_assets_directory =/storage/roms/downloads" >> $INSTALL/etc/retroarch.cfg
-  
+  echo "quick_menu_show_undo_save_load_state = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_save_core_overrides = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_save_game_overrides = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_cheats = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_overlays = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_rewind = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "quick_menu_show_latency = \"false\"" >> $INSTALL/etc/retroarch.cfg
+ 
   # Video
   sed -i -e "s/# video_windowed_fullscreen = true/video_windowed_fullscreen = false/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# video_smooth = true/video_smooth = false/" $INSTALL/etc/retroarch.cfg
@@ -131,6 +143,10 @@ makeinstall_target() {
   sed -i -e "s/# video_filter_dir =/video_filter_dir =\/usr\/share\/video_filters/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# video_gpu_screenshot = true/video_gpu_screenshot = false/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# video_fullscreen = false/video_fullscreen = true/" $INSTALL/etc/retroarch.cfg
+
+  # show fps
+  # echo "fps_show = \"true\"" >> $INSTALL/etc/retroarch.cfg
+  # echo "fps_update_interval = \"30\"" >> $INSTALL/etc/retroarch.cfg
 
   # Audio
   sed -i -e "s/# audio_driver =/audio_driver = \"alsathread\"/" $INSTALL/etc/retroarch.cfg
@@ -148,18 +164,21 @@ makeinstall_target() {
   sed -i -e "s/# input_autodetect_enable = true/input_autodetect_enable = true/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# joypad_autoconfig_dir =/joypad_autoconfig_dir = \/tmp\/joypads/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# input_remapping_directory =/input_remapping_directory = \/storage\/remappings/" $INSTALL/etc/retroarch.cfg
-  sed -i -e "s/# input_menu_toggle_gamepad_combo = 0/input_menu_toggle_gamepad_combo = 2/" $INSTALL/etc/retroarch.cfg
+
+  sed -i -e "s/# input_menu_toggle_gamepad_combo = 0/input_menu_toggle_gamepad_combo = 4/" $INSTALL/etc/retroarch.cfg
+  # sed -i -e "s/# input_menu_toggle_gamepad_combo = 0/input_menu_toggle_gamepad_combo = 2/" $INSTALL/etc/retroarch.cfg
+
   sed -i -e "s/# all_users_control_menu = false/all_users_control_menu = true/" $INSTALL/etc/retroarch.cfg
 
   # Menu
   sed -i -e "s/# menu_mouse_enable = false/menu_mouse_enable = false/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# menu_core_enable = true/menu_core_enable = false/" $INSTALL/etc/retroarch.cfg
   sed -i -e "s/# thumbnails_directory =/thumbnails_directory = \/storage\/thumbnails/" $INSTALL/etc/retroarch.cfg
-  echo "menu_show_advanced_settings = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "menu_show_advanced_settings = \"true\"" >> $INSTALL/etc/retroarch.cfg
   echo "menu_wallpaper_opacity = \"1.0\"" >> $INSTALL/etc/retroarch.cfg
-  echo "xmb_show_images = \"false\"" >> $INSTALL/etc/retroarch.cfg
-  echo "xmb_show_music = \"false\"" >> $INSTALL/etc/retroarch.cfg
-  echo "xmb_show_video = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "content_show_images = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "content_show_music = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "content_show_video = \"false\"" >> $INSTALL/etc/retroarch.cfg
 
   # Updater
   if [ "$ARCH" == "arm" ]; then
@@ -169,6 +188,8 @@ makeinstall_target() {
   # Playlists
   echo "playlist_names = \"$RA_PLAYLIST_NAMES\"" >> $INSTALL/etc/retroarch.cfg
   echo "playlist_cores = \"$RA_PLAYLIST_CORES\"" >> $INSTALL/etc/retroarch.cfg
+  echo "playlist_entry_rename = \"false\"" >> $INSTALL/etc/retroarch.cfg
+  echo "playlist_entry_remove = \"false\"" >> $INSTALL/etc/retroarch.cfg
 
   # Gamegirl
   if [ "$PROJECT" == "Gamegirl" ]; then

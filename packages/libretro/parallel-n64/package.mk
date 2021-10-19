@@ -19,20 +19,31 @@
 ################################################################################
 
 PKG_NAME="parallel-n64"
-PKG_VERSION="d1539a9"
+#PKG_VERSION="7868eea" # lakka master 2020-08
+PKG_VERSION="b52bbda7ce425bb43b27850245a78ee59baa27a7" # libretro master 2020-10, no crash
+#PKG_VERSION="6e26fbbc5a85f9613a01c1880142add81d618e19" # libretro master 2021-02, crashes on close
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/parallel-n64"
-PKG_URL="https://github.com/libretro/parallel-n64/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Optimized/rewritten Nintendo 64 emulator made specifically for Libretro. Originally based on Mupen64 Plus."
 PKG_LONGDESC="Optimized/rewritten Nintendo 64 emulator made specifically for Libretro. Originally based on Mupen64 Plus."
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
+
+if [ "$OPENGL_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGL"
+fi
+
+if [ "$OPENGLES_SUPPORT" = yes ]; then
+  PKG_DEPENDS_TARGET+=" $OPENGLES"
+fi
 
 pre_configure_target() {
   strip_lto
@@ -45,12 +56,26 @@ make_target() {
     DYNAREC=x86
   fi
 
-  if [ "$PROJECT" == "RPi" -o "$PROJECT" == "Gamegirl" ]; then
+  if [ "$ARCH" = "arm" -o "$ARCH" = "aarch64" ]; then
+    CFLAGS="$CFLAGS -DARM_FIX"
+  fi
+
+  if [ "$DEVICE" == "RPi" -o "$DEVICE" == "Gamegirl" ]; then
     make platform=rpi
+  elif [ "$DEVICE" = "RPi4" ]; then
+    LDFLAGS="$LDFLAGS -lpthread"
+    make platform=armv-neon WITH_DYNAREC=$DYNAREC HAVE_PARALLEL=1
+  elif [[ "$PROJECT" == "Generic_VK_nvidia" ]]; then
+    LDFLAGS="$LDFLAGS -lpthread"
+    make WITH_DYNAREC=$DYNAREC HAVE_PARALLEL=1 HAVE_OPENGL=0
   elif [[ "$TARGET_FPU" =~ "neon" ]]; then
     CFLAGS="$CFLAGS -DGL_BGRA_EXT=0x80E1" # Fix build for platforms where GL_BGRA_EXT is not defined
     make platform=armv-gles-neon
+  elif [ "$PROJECT" ==  "Rockchip" -a "$ARCH" == "aarch64" ]; then
+    LDFLAGS="$LDFLAGS -lpthread"
+    make FORCE_GLES=1 HAVE_PARALLEL=1
   else
+    LDFLAGS="$LDFLAGS -lpthread"
     make WITH_DYNAREC=$DYNAREC HAVE_PARALLEL=0
   fi
 }

@@ -19,24 +19,21 @@
 ################################################################################
 
 PKG_NAME="retroarch-overlays"
-PKG_VERSION="440509f"
+PKG_VERSION="9426d5c"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/common-overlays"
-PKG_URL="https://github.com/libretro/common-overlays/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="RetroArch overlays"
 PKG_LONGDESC="Collection of overlay files for use with libretro frontends, such as RetroArch."
+PKG_TOOLCHAIN="manual"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
-
-post_unpack() {
-  mv $BUILD/common-overlays-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
 
 make_target() {
   :

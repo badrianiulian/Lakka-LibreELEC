@@ -318,7 +318,9 @@ done
 
 # create filesystem on part2
   echo "image: creating filesystem on part2..."
-  mke2fs -F -q -t ext4 -m 0 "$LE_TMP/part2.ext4"
+  #mke2fs -F -q -t ext4 -m 0 "$LE_TMP/part2.ext4"
+  #newer versions of mke2fs add an option "metadata_csum" to ext4 filesystems that older kernels can't handle. this will result in lakka failing to mount the storage partition. disable this option. see: https://unix.stackexchange.com/questions/287159/linux-couldnt-mount-rdwr-because-of-unsupported-optional-features-400
+  mke2fs -F -q -t ext4 -O ^metadata_csum -m 0 "$LE_TMP/part2.ext4"
   tune2fs -L "$EXT_VOLUME_LABEL" -U $UUID_STORAGE "$LE_TMP/part2.ext4" >"$SAVE_ERROR" 2>&1 || show_error
   e2fsck -n "$LE_TMP/part2.ext4" >"$SAVE_ERROR" 2>&1 || show_error
   sync

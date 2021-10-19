@@ -19,13 +19,13 @@
 ################################################################################
 
 PKG_NAME="citra"
-PKG_VERSION="1823304"
+PKG_VERSION="84f31e9"
 PKG_REV="1"
 PKG_ARCH="x86_64"
 PKG_LICENSE="GPLv2+"
 PKG_SITE="https://github.com/libretro/citra"
-PKG_URL="https://github.com/libretro/citra/archive/$PKG_VERSION.tar.gz"
-PKG_DEPENDS_TARGET="toolchain boost"
+PKG_URL="$PKG_SITE.git"
+PKG_DEPENDS_TARGET="toolchain boost curl"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="A Nintendo 3DS Emulator"
@@ -44,6 +44,16 @@ PKG_CMAKE_OPTS_TARGET="-DENABLE_LIBRETRO=1 \
                        -DCMAKE_NO_SYSTEM_FROM_IMPORTED=1 \
                        -DCMAKE_VERBOSE_MAKEFILE=1 \
                        --target citra_libretro"
+
+pre_configure_target() {
+  CXXFLAGS="$CXXFLAGS -fpermissive"
+}
+
+pre_make_target() {
+  find $PKG_BUILD -name flags.make -exec sed -i "s:isystem :I:g" \{} \;
+  find $PKG_BUILD -name build.ninja -exec sed -i "s:isystem :I:g" \{} \;
+}
+
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro

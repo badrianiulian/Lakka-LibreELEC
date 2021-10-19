@@ -424,7 +424,8 @@ screen0_output_type = 3
 screen0_output_mode = 4
 screen1_output_type = 2
 screen1_output_mode = 11
-fb0_framebuffer_num = 2
+;fb0_framebuffer_num = 2
+fb0_framebuffer_num = 3
 fb0_format = 10
 fb0_pixel_sequence = 0
 fb0_scaler_mode_enable = 1
@@ -975,7 +976,7 @@ leds_num = 1
 leds_pin_1 = port:PH24<1><default><default><0>
 leds_name_1 = "green:ph24:led1"
 leds_default_1 = 1
-leds_trigger_1 = "heartbeat"
+leds_trigger_1 = "default-on"
 
 [ir_para]
 ir_used = 1

@@ -17,30 +17,28 @@
 ################################################################################
 
 PKG_NAME="fsuae"
-PKG_VERSION="7990f7a"
+PKG_VERSION="6b98f85"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/libretro/libretro-fsuae"
-PKG_URL="$LAKKA_MIRROR/$PKG_NAME-$PKG_VERSION.tar.xz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain libmpeg2 openal-soft glib"
 PKG_SECTION="emulation"
 PKG_SHORTDESC="FS-UAE amiga emulator libretro core."
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="yes"
 
-case $PROJECT in
-  RPi*)
+if [ "$PROJECT" = "RPi" ] ; then
     PKG_CONFIGURE_OPTS_TARGET="--disable-jit --enable-neon"
-    ;;
-esac
+fi
 
 pre_configure_target() {
   cd $BUILD/$PKG_NAME-$PKG_VERSION
   rm -rf .$TARGET_NAME
   export ac_cv_func_realloc_0_nonnull=yes
-  strip_lto
 }
 
 make_target() {

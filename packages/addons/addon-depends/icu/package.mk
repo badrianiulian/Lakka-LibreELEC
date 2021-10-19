@@ -17,28 +17,39 @@
 ################################################################################
 
 PKG_NAME="icu"
-PKG_VERSION="57.1"
+PKG_VERSION="61.1"
 PKG_ARCH="any"
 PKG_LICENSE="Custom"
 PKG_SITE="http://www.icu-project.org"
-PKG_URL="http://download.icu-project.org/files/${PKG_NAME}4c/${PKG_VERSION}/${PKG_NAME}4c-${PKG_VERSION//./_}-src.tgz"
+#PKG_URL="http://download.icu-project.org/files/${PKG_NAME}4c/${PKG_VERSION}/${PKG_NAME}4c-${PKG_VERSION//./_}-src.tgz"
+PKG_URL="https://github.com/unicode-org/icu/releases/download/release-${PKG_VERSION//./_}/icu4c-${PKG_VERSION//./_}-src.tgz"
 PKG_SOURCE_DIR="icu"
 PKG_DEPENDS_TARGET="toolchain icu:host"
 PKG_SECTION="textproc"
 PKG_SHORTDESC="International Components for Unicode library"
 PKG_LONGDESC="International Components for Unicode library"
 
+PKG_ICU_OPTS="--disable-extras \
+              --disable-icuio \
+              --disable-layout \
+              --disable-renaming \
+              --disable-samples \
+              --disable-tests \
+              --disable-tools"
+
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-PKG_CONFIGURE_OPTS_HOST="--enable-static --disable-shared"
+PKG_CONFIGURE_OPTS_HOST="--enable-static --disable-shared $PKG_ICU_OPTS"
 
 PKG_CONFIGURE_OPTS_TARGET="--enable-static \
                            --disable-shared \
-                           --with-cross-build=$PKG_BUILD/.$HOST_NAME"
+                           --with-cross-build=$PKG_BUILD/.$HOST_NAME \
+							$PKG_ICU_OPTS"
 
 PKG_CONFIGURE_SCRIPT="source/configure"
 
 post_makeinstall_target() {
   rm -rf $INSTALL
 }
+

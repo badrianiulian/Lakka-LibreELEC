@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="mame2010"
-PKG_VERSION="04bf597"
+PKG_VERSION="9b0e3b3"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="MAME"
-PKG_SITE="https://github.com/libretro/mame2010-libretro.git"
-PKG_URL="https://github.com/libretro/mame2010-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/libretro/mame2010-libretro"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -34,10 +34,6 @@ PKG_LONGDESC="Late 2010 version of MAME (0.139) for libretro. Compatible with MA
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/mame2010-libretro-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
-
 make_target() {
   if [ "$ARCH" == "arm" ]; then
     make CC="$CC" LD="$CC" PLATCFLAGS="$CFLAGS" PTR64=0 ARM_ENABLED=1 LCPU=arm
@@ -45,6 +41,8 @@ make_target() {
     make CC="$CC" LD="$CC" PLATCFLAGS="$CFLAGS" PTR64=0 ARM_ENABLED=0 LCPU=x86
   elif [ "$ARCH" == "x86_64" ]; then
     make CC="$CC" LD="$CC" PLATCFLAGS="$CFLAGS" PTR64=1 ARM_ENABLED=0 LCPU=x86_64
+  elif [ "$ARCH" == "aarch64" ]; then
+    make CC="$CC" LD="$CC" PLATCFLAGS="$CFLAGS" PTR64=1 ARM_ENABLED=1 LCPU=arm64
   fi
 }
 
@@ -52,3 +50,4 @@ makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro
   cp mame2010_libretro.so $INSTALL/usr/lib/libretro/
 }
+

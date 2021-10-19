@@ -19,28 +19,20 @@
 ################################################################################
 
 PKG_NAME="atari800"
-PKG_VERSION="2445afd"
-PKG_REV="1"
+PKG_VERSION="ac0bc2e"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/libretro-atari800"
-PKG_URL="https://github.com/libretro/libretro-atari800/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
-PKG_SHORTDESC="atari800 3.1.0 for libretro/libco WIP"
-PKG_LONGDESC="atari800 3.1.0 for libretro/libco WIP"
+PKG_SHORTDESC="Libretro port of Atari800 emulator version 3.1.0"
+PKG_LONGDESC="Libretro port of Atari800 emulator version 3.1.0"
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
-
-post_unpack() {
-  mv $BUILD/libretro-atari800-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
-
-pre_configure_target() {
-  strip_lto
-}
 
 makeinstall_target() {
   mkdir -p $INSTALL/usr/lib/libretro

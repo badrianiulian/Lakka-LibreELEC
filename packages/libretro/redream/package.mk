@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="redream"
-PKG_VERSION="5feae48"
+PKG_VERSION="ffb7302"
 PKG_REV="1"
-PKG_ARCH="x86_64"
+PKG_ARCH="arm i386 x86_64"
 PKG_LICENSE="MIT"
 PKG_SITE="https://github.com/inolen/redream"
-PKG_URL="https://github.com/inolen/redream/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
@@ -36,8 +36,12 @@ PKG_AUTORECONF="no"
 PKG_USE_CMAKE="no"
 
 make_target() {
-  cd $PKG_BUILD
-  make -f deps/libretro/Makefile
+  cd $PKG_BUILD/deps/libretro
+  if [ "$ARCH" == "arm" ]; then
+    make CC=$CC CXX=$CXX FORCE_GLES=1 WITH_DYNAREC=arm HAVE_NEON=1
+  else
+    make
+  fi
 }
 
 makeinstall_target() {

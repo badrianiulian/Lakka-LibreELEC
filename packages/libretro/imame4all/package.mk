@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="imame4all"
-PKG_VERSION="596b1ec"
+PKG_VERSION="e5d4a93"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="MAME"
-PKG_SITE="https://github.com/libretro/imame4all-libretro.git"
-PKG_URL="$LAKKA_MIRROR/$PKG_NAME-$PKG_VERSION.tar.xz"
+PKG_SITE="https://github.com/libretro/imame4all-libretro"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"

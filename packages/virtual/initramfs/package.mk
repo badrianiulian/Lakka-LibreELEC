@@ -61,3 +61,4 @@ post_install() {
       "mkdir -p dev; mknod -m 600 dev/console c 5 1; find . | cpio -H newc -ov -R 0:0 > $BUILD/image/initramfs.cpio"
   )
 }
+

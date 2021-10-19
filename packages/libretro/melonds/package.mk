@@ -19,24 +19,31 @@
 ################################################################################
 
 PKG_NAME="melonds"
-PKG_VERSION="d00a999"
-PKG_REV="1"
-PKG_ARCH="any"
+PKG_VERSION="de32019"
+PKG_ARCH="x86_64"
 PKG_LICENSE="GPLv3"
 PKG_SITE="https://github.com/libretro/melonds"
-PKG_URL="https://github.com/libretro/melonds/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="DS emulator, sorta"
 PKG_LONGDESC="DS emulator, sorta"
+PKG_TOOLCHAIN="make"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
-PKG_USE_CMAKE="no"
 
 configure_target() {
   cd $PKG_BUILD
+}
+
+make_target() {
+  if [ "$OPENGL_SUPPORT" = yes ]; then
+    make HAVE_OPENGL=1
+  else
+    make HAVE_OPENGL=0
+  fi
 }
 
 makeinstall_target() {

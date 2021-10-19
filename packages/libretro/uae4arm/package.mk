@@ -19,32 +19,29 @@
 ################################################################################
 
 PKG_NAME="uae4arm"
-PKG_VERSION="0e9dd6e"
+PKG_VERSION="bfb7b97"
 PKG_REV="1"
 PKG_ARCH="arm"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/uae4arm-libretro"
-PKG_URL="https://github.com/libretro/uae4arm-libretro/archive/$PKG_VERSION.tar.gz"
+PKG_URL="$PKG_SITE.git"
 PKG_DEPENDS_TARGET="toolchain"
 PKG_PRIORITY="optional"
 PKG_SECTION="libretro"
 PKG_SHORTDESC="Port of uae4arm for libretro (rpi/android)"
 PKG_LONGDESC="Port of uae4arm for libretro (rpi/android) "
+PKG_BUILD_FLAGS="-lto"
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-post_unpack() {
-  mv $BUILD/uae4arm-libretro-$PKG_VERSION* $BUILD/$PKG_NAME-$PKG_VERSION
-}
-
 make_target() {
-  strip_lto
   CFLAGS="$CFLAGS -DARM -marm"
   if [[ "$TARGET_FPU" =~ "neon" ]]; then
-    CFLAGS="-D__NEON_OPT"
+    make HAVE_NEON=1 USE_PICASSO96=1
+  else
+    make
   fi
-  make HAVE_NEON=1 USE_PICASSO96=1
 }
 
 makeinstall_target() {

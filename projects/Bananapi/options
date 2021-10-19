@@ -93,6 +93,8 @@
   # OpenGL-ES implementation to use (no / bcm2835-driver / gpu-viv-bin-mx6q)
     OPENGLES="sunxi-mali"
 
+	MALI_FAMILY="400"
+
   # include uvesafb support (yes / no)
     UVESAFB_SUPPORT="no"
 
