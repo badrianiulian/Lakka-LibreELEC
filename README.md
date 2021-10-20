@@ -20,7 +20,7 @@ You will have to manually connect using ssh on the Ethernet port: start `connman
 `scan wifi` (get available access points)\
 `services` (show available access points)\
 `connect wifi_xxxxxxxxxxx_managed_psk` (connect to your desired access point and enter the password)\
-I'm no expert but I do enjoy learning new things.\
+I'm no expert but I do enjoy learning new things.
 
 ## Installation instructions
 
